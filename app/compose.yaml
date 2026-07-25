@@ -10,5 +10,9 @@ services:
       - no-new-privileges:true
     ports:
       - "8099:8099"
+    environment:
+      # Set PANEL_PASS to enable HTTP basic auth (leave unset only on a trusted LAN).
+      PANEL_USER: "${PANEL_USER:-admin}"
+      PANEL_PASS: "${PANEL_PASS:-}"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro

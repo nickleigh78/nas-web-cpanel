@@ -12,9 +12,12 @@ Intentionally dependency-light and incremental — grown over the autonomous wak
 from __future__ import annotations
 
 import html
+import os
+import secrets as _secrets
 
-from fastapi import FastAPI, Request
+from fastapi import Depends, FastAPI, HTTPException, Request, status
 from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.security import HTTPBasic, HTTPBasicCredentials
 
 try:
     import docker
@@ -26,6 +29,28 @@ else:
     _client_error = None
 
 app = FastAPI(title="Spike-Chilli App Panel", version="0.1.0")
+
+# --- Basic auth (E4). Enforced only when PANEL_PASS is set; LAN-only dev otherwise. ---
+_PANEL_USER = os.environ.get("PANEL_USER", "admin")
+_PANEL_PASS = os.environ.get("PANEL_PASS")
+_basic = HTTPBasic(auto_error=False)
+
+
+def require_auth(credentials: HTTPBasicCredentials | None = Depends(_basic)) -> None:
+    """No-op until PANEL_PASS is set — set it before exposing the panel."""
+    if not _PANEL_PASS:
+        return
+    ok = (
+        credentials is not None
+        and _secrets.compare_digest(credentials.username, _PANEL_USER)
+        and _secrets.compare_digest(credentials.password, _PANEL_PASS)
+    )
+    if not ok:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Unauthorized",
+            headers={"WWW-Authenticate": "Basic"},
+        )
 
 PAGE = """<!doctype html><html><head><meta charset="utf-8">
 <title>Spike-Chilli App Panel</title>
@@ -70,12 +95,12 @@ def _rows() -> str:
 
 
 @app.get("/", response_class=HTMLResponse)
-def dashboard(_: Request) -> str:
+def dashboard(_: Request, _auth: None = Depends(require_auth)) -> str:
     return PAGE.format(body=_rows())
 
 
 @app.post("/act/{cid}/{action}")
-def act(cid: str, action: str) -> RedirectResponse:
+def act(cid: str, action: str, _auth: None = Depends(require_auth)) -> RedirectResponse:
     if _client is not None and action in {"start", "stop", "restart"}:
         try:
             getattr(_client.containers.get(cid), action)()
@@ -99,7 +124,7 @@ LOGS_PAGE = """<!doctype html><html><head><meta charset="utf-8">
 
 
 @app.get("/logs/{cid}", response_class=HTMLResponse)
-def logs(cid: str, tail: int = 200) -> str:
+def logs(cid: str, tail: int = 200, _auth: None = Depends(require_auth)) -> str:
     if _client is None:
         return PAGE.format(body='<p class="down">Docker not reachable.</p>')
     tail = max(1, min(tail, 2000))
