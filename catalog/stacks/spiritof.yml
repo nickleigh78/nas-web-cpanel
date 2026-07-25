@@ -1,0 +1,27 @@
+# Curated catalog: PHP + Apache + MariaDB (one-click via Portainer template).
+# Generic LAMP shell — used for the spiritof.org mirror (2014 site + PHP shop).
+# If the app uses the removed mysql_* API, switch web image to php:5.6-apache.
+# Restore per nickleigh-info-local/stacks/spiritof/README.md.
+services:
+  db:
+    image: mariadb:11
+    restart: unless-stopped
+    environment:
+      MARIADB_DATABASE: ${SP_DB_NAME:-spiritof}
+      MARIADB_USER: ${SP_DB_USER:-spiritof}
+      MARIADB_PASSWORD: ${SP_DB_PASSWORD:-change-me}
+      MARIADB_RANDOM_ROOT_PASSWORD: "yes"
+    volumes:
+      - db:/var/lib/mysql
+  web:
+    image: ${SP_PHP_IMAGE:-php:7.4-apache}
+    restart: unless-stopped
+    depends_on:
+      - db
+    ports:
+      - "${SP_PORT:-8084}:80"
+    volumes:
+      - site:/var/www/html
+volumes:
+  db:
+  site:

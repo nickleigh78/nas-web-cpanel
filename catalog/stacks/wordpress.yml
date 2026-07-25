@@ -1,0 +1,30 @@
+# Curated catalog: generic WordPress + MariaDB (one-click via Portainer template).
+# Distinct from the mirror-specific stacks in ../../../nickleigh-info-local/stacks/.
+services:
+  db:
+    image: mariadb:11
+    restart: unless-stopped
+    environment:
+      MARIADB_DATABASE: ${WP_DB_NAME:-wordpress}
+      MARIADB_USER: ${WP_DB_USER:-wordpress}
+      MARIADB_PASSWORD: ${WP_DB_PASSWORD:-change-me}
+      MARIADB_RANDOM_ROOT_PASSWORD: "yes"
+    volumes:
+      - db:/var/lib/mysql
+  wordpress:
+    image: wordpress:6-php8.3-apache
+    restart: unless-stopped
+    depends_on:
+      - db
+    environment:
+      WORDPRESS_DB_HOST: db
+      WORDPRESS_DB_NAME: ${WP_DB_NAME:-wordpress}
+      WORDPRESS_DB_USER: ${WP_DB_USER:-wordpress}
+      WORDPRESS_DB_PASSWORD: ${WP_DB_PASSWORD:-change-me}
+    ports:
+      - "${WP_PORT:-8090}:80"
+    volumes:
+      - wp:/var/www/html
+volumes:
+  db:
+  wp:

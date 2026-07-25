@@ -1,0 +1,27 @@
+# Secrets — never committed
+.env
+secrets/
+*.secret
+secrets.env
+
+# Runtime / data
+data/
+*.sqlite
+*.db
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.pytest_cache/
+
+# Node (if the panel UI uses it later)
+node_modules/
+dist/
+
+# OS / editor
+.DS_Store
+*.swp
+.idea/
+.vscode/

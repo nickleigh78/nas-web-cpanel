@@ -1,0 +1,18 @@
+# Portainer CE — the app-panel engine, on the DS1522+ (Container Manager).
+# Deploy under /volume1/docker/portainer/. Bring-up is Nick's action (see README).
+services:
+  portainer:
+    image: portainer/portainer-ce:2.21.5   # pin; check for a newer 2.2x before deploy
+    container_name: portainer
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    ports:
+      - "9443:9443"   # HTTPS UI  → https://<nas-ip>:9443
+      - "8000:8000"   # Edge agent tunnel (optional; can be omitted)
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock   # read-write: Portainer must create/manage containers
+      - ./data:/data
+    # To load Nick's curated catalog on first start, uncomment and set the URL
+    # (see catalog/README.md — needs a reachable URL: public raw or NAS-hosted):
+    # command: --templates https://raw.githubusercontent.com/nickleigh78/nas-web-cpanel/main/catalog/templates.json

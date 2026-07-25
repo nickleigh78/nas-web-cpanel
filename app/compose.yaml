@@ -1,0 +1,14 @@
+# Spike-Chilli App Panel (custom MVP). Deploy under /volume1/docker/app-panel/.
+# Read-mostly: mounts the docker socket to list/act on containers. LAN-only.
+services:
+  panel:
+    build: .
+    # Or, once published: image: ghcr.io/nickleigh78/nas-web-cpanel:latest
+    container_name: app-panel
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    ports:
+      - "8099:8099"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro

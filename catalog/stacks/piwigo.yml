@@ -1,0 +1,28 @@
+# Curated catalog: Piwigo + MariaDB (one-click via Portainer template).
+# The authoritative Piwigo rebuild lives in ../../../piwigo-local — align image
+# pin + restore steps to that repo for the actual mirror.
+services:
+  db:
+    image: mariadb:11
+    restart: unless-stopped
+    environment:
+      MARIADB_DATABASE: ${PW_DB_NAME:-piwigo}
+      MARIADB_USER: ${PW_DB_USER:-piwigo}
+      MARIADB_PASSWORD: ${PW_DB_PASSWORD:-change-me}
+      MARIADB_RANDOM_ROOT_PASSWORD: "yes"
+    volumes:
+      - db:/var/lib/mysql
+  piwigo:
+    image: piwigo/piwigo:latest
+    restart: unless-stopped
+    depends_on:
+      - db
+    ports:
+      - "${PW_PORT:-8085}:80"
+    volumes:
+      - gallery:/gallery
+      - config:/config
+volumes:
+  db:
+  gallery:
+  config:

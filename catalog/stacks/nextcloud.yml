@@ -1,0 +1,29 @@
+# Curated catalog: Nextcloud + MariaDB (one-click via Portainer template).
+services:
+  db:
+    image: mariadb:11
+    restart: unless-stopped
+    environment:
+      MARIADB_DATABASE: nextcloud
+      MARIADB_USER: nextcloud
+      MARIADB_PASSWORD: ${NC_DB_PASSWORD:-change-me}
+      MARIADB_RANDOM_ROOT_PASSWORD: "yes"
+    volumes:
+      - db:/var/lib/mysql
+  app:
+    image: nextcloud:apache
+    restart: unless-stopped
+    depends_on:
+      - db
+    environment:
+      MYSQL_HOST: db
+      MYSQL_DATABASE: nextcloud
+      MYSQL_USER: nextcloud
+      MYSQL_PASSWORD: ${NC_DB_PASSWORD:-change-me}
+    ports:
+      - "${NC_PORT:-8091}:80"
+    volumes:
+      - nc:/var/www/html
+volumes:
+  db:
+  nc:

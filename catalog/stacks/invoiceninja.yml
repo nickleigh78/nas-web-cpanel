@@ -1,0 +1,39 @@
+# Curated catalog: InvoiceNinja v5 + MariaDB (one-click via Portainer template).
+# Fresh shell. For the Spike-Chilli mirror, carry the captured .env APP_KEY verbatim
+# and restore per nickleigh-info-local/stacks/invoiceninja/README.md.
+services:
+  db:
+    image: mariadb:11
+    restart: unless-stopped
+    environment:
+      MARIADB_DATABASE: ${IN_DB_NAME:-invoiceninja}
+      MARIADB_USER: ${IN_DB_USER:-invoiceninja}
+      MARIADB_PASSWORD: ${IN_DB_PASSWORD:-change-me}
+      MARIADB_RANDOM_ROOT_PASSWORD: "yes"
+    volumes:
+      - db:/var/lib/mysql
+  app:
+    image: invoiceninja/invoiceninja:5
+    restart: unless-stopped
+    depends_on:
+      - db
+    environment:
+      # APP_KEY is REQUIRED. Fresh: generate with
+      #   docker run --rm invoiceninja/invoiceninja:5 php artisan key:generate --show
+      # Mirror: use the captured value VERBATIM (decrypts the DB).
+      APP_KEY: ${IN_APP_KEY:-}
+      APP_URL: ${IN_URL:-http://localhost:8083}
+      DB_HOST: db
+      DB_DATABASE: ${IN_DB_NAME:-invoiceninja}
+      DB_USERNAME: ${IN_DB_USER:-invoiceninja}
+      DB_PASSWORD: ${IN_DB_PASSWORD:-change-me}
+      MAIL_MAILER: log        # replica must never email real clients
+    ports:
+      - "${IN_PORT:-8083}:80"
+    volumes:
+      - public:/var/www/html/public
+      - storage:/var/www/html/storage
+volumes:
+  db:
+  public:
+  storage:
