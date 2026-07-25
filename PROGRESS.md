@@ -75,6 +75,12 @@ Resume: read top-to-bottom. Autonomous build via scheduled wakeups; commit each 
 - Capture side: Track C effectively complete (6.1 GB); R1 gallery resumed + self-
   completing via r1-monitor (see piwigo-local/R1-PROGRESS.md).
 
+## 2026-07-26 — tick: E4 basic auth done
+- R1 pulse: running, monitor alive, 17 GB (compare phase), no completion signal — nominal.
+- **E4 basic auth DONE** (7489898): opt-in via PANEL_PASS, constant-time compare, guards
+  dashboard/act/logs, healthz open. Board updated.
+- Next: E4 install-from-catalog.
+
 ## HALT ledger
 - **HALT-1 (pending):** before Nick runs anything on the DS1522+ (deploy Portainer /
   the panel). Nothing on the box yet — repo + docs only. First live action is Nick's,
