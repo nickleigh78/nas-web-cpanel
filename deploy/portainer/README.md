@@ -15,15 +15,16 @@ Nick runs it in DSM** (CC does not operate the NAS). ~5 minutes.
    container and retry).
 5. Choose "Get Started" → manage the **local** Docker environment.
 
-## Load Nick's curated catalog (the Softaculous part)
-Portainer → Settings → **App Templates** → set the URL to the catalog's
-`templates.json`. Because catalog files must be reachable by a URL:
-- **Option A (simplest):** make the `nas-web-cpanel` GitHub repo public and use
-  `https://raw.githubusercontent.com/nickleigh78/nas-web-cpanel/main/catalog/templates.json`.
-- **Option B (private):** copy `catalog/` to a NAS web path (e.g. Web Station or a
-  tiny nginx container) and point the URL there.
-Then Portainer → **App Templates** shows the curated list, including the
-"Spike-Chilli Mirror" category — one-click install.
+## Load Nick's curated catalog (the Softaculous part) — DONE 2026-07-26
+Repo is **public** (sanitized — generic DB placeholders, no account username), and the
+App Templates URL is set to:
+`https://raw.githubusercontent.com/nickleigh78/nas-web-cpanel/main/catalog/templates.json`
+Portainer → **App Templates** now shows the curated list incl. the "Spike-Chilli
+Mirror" category. To refresh after catalog edits, re-save the URL in Settings.
+
+⚠️ **Do NOT set up a "Web Station web portal"** for the Portainer project in Container
+Manager — DSM auto-offers it and it causes 404s (it proxies as HTTP; Portainer is
+HTTPS on 9443). Leave it unchecked; access Portainer directly on its published 9443.
 
 ## Security
 - LAN-only. Do not port-forward 9443/8000.

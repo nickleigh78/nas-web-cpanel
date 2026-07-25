@@ -31,6 +31,43 @@ optional thin dashboard. LAN-only, self-hosted, no licence.
   API: list stacks, status, start/stop, logs; later "install from catalog".
 - **E5 Search** — discover packages (Docker Hub / curated index) to add to the catalog.
 - **E6 Docs + handoff** — one runbook from zero → working manager on the DS1522+.
+- **E7 Portainer setup & branding** — operationalise the running engine (see §7b).
+  All of E7 rolls up to portfolio epic **E8** (this whole repo).
+
+## 7b. E7 — Portainer setup & branding backlog
+
+Now that Portainer is deployed and the public catalog loads, these operationalise it.
+Grouped; each is a board item (#6). Config/branding is E7.1.
+
+**Branding & UX**
+- **E7.1 Branding (config):** custom logo + UI theme/accent + login banner to the
+  Spike-Chilli identity (CE supports logo + theme; full whitelabel is Business Ed.).
+- **E7.2 UX:** default dashboard view, hide unused features, sensible list densities.
+
+**Networking — the subdomain goal**
+- **E7.3 Reverse proxy:** deploy Nginx Proxy Manager (in the catalog) or DSM reverse
+  proxy → give every app `<app>.spikechilli.local` instead of ports.
+- **E7.4 Portainer hostname + real cert:** `portainer.spikechilli.local` with a proper
+  cert (replace the self-signed 9443).
+
+**Access & security**
+- **E7.5 Admin hardening:** strong pw, session timeout, disable anonymous access.
+- **E7.6 Users/teams + RBAC:** scoped access (e.g. a read-only/Martina account) if wanted.
+- **E7.7 Registries:** Docker Hub auth (avoid pull rate limits) + GHCR (for the panel image).
+
+**Stacks & operations**
+- **E7.8 Deploy mirror stacks:** bring up wp-main, wp-gbr, invoiceninja, spiritof, piwigo
+  as Portainer stacks + restore captured data per each runbook.
+- **E7.9 Config backup:** Portainer settings backup + schedule.
+- **E7.10 Update strategy:** container image updates (Watchtower or manual) + notifications.
+- **E7.11 Stack webhooks:** redeploy-on-push for the app stacks.
+- **E7.12 Limits + healthchecks:** per-stack resource limits and health checks.
+
+**Growth / future**
+- **E7.13 Extra endpoints:** Portainer agents on other hosts (the Macs; **Proxmox VMs**
+  when that lands — ties to the hypervisor concept parked for later).
+- **E7.14 Alerting:** stack-down notifications → Uptime Kuma / control-hub.
+- **E7.15 Ship the custom App Panel** as a managed stack (GHCR image).
 
 ## Definition of "working version" (48h target)
 Portainer deployable via `deploy/portainer/` + the curated `catalog/templates.json`

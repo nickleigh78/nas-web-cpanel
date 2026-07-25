@@ -60,6 +60,21 @@ Resume: read top-to-bottom. Autonomous build via scheduled wakeups; commit each 
 - **Resume dev after the reset:** next dev slice = E4 basic auth → install-from-catalog
   → stack grouping → E5 search → E6 runbook. Done: E1, E2, E3, E4 logs view.
 
+## 2026-07-26 — Portainer LIVE + catalog loaded (post-reset, dev resumed)
+- **Portainer deployed on the DS1522+** via Container Manager (compose staged by CC
+  over SSH at /volume1/docker/portainer/). Fixed: docker.sock mounted read-write (the
+  `:ro` would have blocked all installs); resolved the DSM "Web Station web portal"
+  auto-enable that was causing 404s (disable it — Portainer serves its own UI on 9443).
+  Admin user created. Reachable at https://<nas>:9443.
+- **Repo made PUBLIC** so the App Templates URL works, then **sanitized**: replaced the
+  cPanel account DB names with generic placeholders and squashed history (the `ciqndvoj`
+  username is not in any public commit). Nick set the App Templates URL to the raw
+  catalog. HALT-1 (first live-box action) is now CLEARED — Portainer is running.
+- **E7 Portainer setup & branding backlog** scoped (PLAN §7b) + added to board #6.
+- Dev loop resumed post-reset (30-min cadence): E4 basic auth next.
+- Capture side: Track C effectively complete (6.1 GB); R1 gallery resumed + self-
+  completing via r1-monitor (see piwigo-local/R1-PROGRESS.md).
+
 ## HALT ledger
 - **HALT-1 (pending):** before Nick runs anything on the DS1522+ (deploy Portainer /
   the panel). Nothing on the box yet — repo + docs only. First live action is Nick's,
