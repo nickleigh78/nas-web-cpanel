@@ -377,6 +377,11 @@
       },
       "env": [
         {
+          "name": "PW_BIND_IP",
+          "label": "NAS LAN IP (required — LAN-bind)",
+          "default": ""
+        },
+        {
           "name": "PW_DB_NAME",
           "label": "DB name",
           "default": "piwigo"
@@ -392,7 +397,7 @@
           "default": "change-me"
         },
         {
-          "name": "PW_PORT",
+          "name": "PW_HTTP_PORT",
           "label": "Host port",
           "default": "8085"
         }
