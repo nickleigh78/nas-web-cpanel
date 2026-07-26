@@ -12,8 +12,11 @@ Intentionally dependency-light and incremental — grown over the autonomous wak
 from __future__ import annotations
 
 import html
+import json as _json
 import os
 import secrets as _secrets
+import urllib.parse
+import urllib.request
 
 from fastapi import Depends, FastAPI, HTTPException, Request, status
 from fastapi.responses import HTMLResponse, RedirectResponse
@@ -67,6 +70,10 @@ PAGE = """<!doctype html><html lang="en"><head><meta charset="utf-8">
   border-bottom:1px solid var(--border);padding-bottom:.8rem}}
  header.top h1{{font-size:1.2rem;margin:0}}
  .v{{color:var(--muted);font-size:.78rem;font-family:var(--mono)}}
+ .top form.search{{margin-left:auto}}
+ .top input{{font:inherit;font-size:.8rem;background:var(--panel2);color:var(--text);
+  border:1px solid var(--border);border-radius:7px;padding:.35rem .6rem;min-width:180px}}
+ .top input:focus{{outline:2px solid var(--accent);border-color:var(--accent)}}
  .stack{{background:var(--panel);border:1px solid var(--border);border-radius:11px;
   margin:0 0 1rem;overflow:hidden}}
  .stack-head{{display:flex;align-items:center;justify-content:space-between;gap:.6rem;
@@ -92,7 +99,7 @@ PAGE = """<!doctype html><html lang="en"><head><meta charset="utf-8">
  footer{{color:var(--muted);font-size:.78rem;margin-top:1.2rem;border-top:1px solid var(--border);
   padding-top:.8rem}}
 </style></head><body><div class="wrap">
-<header class="top"><h1>🌶️ Spike-Chilli App Panel</h1><span class="v">v0.2 · grouped by stack</span></header>
+<header class="top"><h1><a href="/" style="color:inherit;text-decoration:none">🌶️ Spike-Chilli App Panel</a></h1><span class="v">v0.3</span><form class="search" method="get" action="/search"><input name="q" placeholder="&#8981; search Docker Hub&#8230;" aria-label="Search Docker Hub"></form></header>
 {body}
 <footer>Grouped by compose stack. Install new apps from Portainer &rarr; App Templates.</footer>
 </div></body></html>"""
@@ -182,6 +189,43 @@ def logs(cid: str, tail: int = 200, _auth: None = Depends(require_auth)) -> str:
         raw, name = f"error reading logs: {exc}", cid
     return LOGS_PAGE.format(name=html.escape(name), cid=html.escape(cid),
                             tail=tail, logs=html.escape(raw) or "(empty)")
+
+
+@app.get("/search", response_class=HTMLResponse)
+def search(q: str = "", _auth: None = Depends(require_auth)) -> str:
+    """Search Docker Hub for images to add to the catalog. Needs outbound internet."""
+    q = q.strip()
+    if not q:
+        return PAGE.format(body='<div class="panel"><h3>Search Docker Hub</h3>'
+            '<div class="li muted">Type a query above (e.g. nextcloud, gitea, jellyfin) '
+            'to find images to add to your catalog.</div></div>')
+    try:
+        url = "https://hub.docker.com/v2/search/repositories/?" + urllib.parse.urlencode(
+            {"query": q, "page_size": 20})
+        req = urllib.request.Request(url, headers={"User-Agent": "spike-chilli-app-panel"})
+        with urllib.request.urlopen(req, timeout=8) as r:
+            results = _json.loads(r.read().decode("utf-8")).get("results", [])
+    except Exception as exc:  # noqa: BLE001
+        return PAGE.format(body=f'<div class="panel"><h3>Search · {html.escape(q)}</h3>'
+            f'<div class="li down">Docker Hub unreachable: {html.escape(str(exc))} '
+            '(the panel container needs outbound internet).</div></div>')
+    if not results:
+        return PAGE.format(body=f'<div class="panel"><h3>Search · {html.escape(q)}</h3>'
+            '<div class="li muted">No results.</div></div>')
+    rows = []
+    for it in results:
+        name = it.get("repo_name") or it.get("name") or ""
+        desc = (it.get("short_description") or "")[:120]
+        tag = " · official" if it.get("is_official") else (" · verified" if it.get("is_automated") else "")
+        rows.append(f'<tr><td class="svc">{html.escape(name)}<span class="t">{tag}</span></td>'
+                    f'<td>{html.escape(desc)}</td>'
+                    f'<td class="t">&#9733;{it.get("star_count", 0)}</td></tr>')
+    body = (f'<div class="panel"><h3>Docker Hub &middot; &ldquo;{html.escape(q)}&rdquo; &middot; {len(results)} results</h3>'
+            f'<table><thead><tr><th>Image</th><th>Description</th><th>Stars</th></tr></thead>'
+            f'<tbody>{"".join(rows)}</tbody></table>'
+            '<div class="li muted">To add one: put it in <code>catalog/templates.json</code> '
+            '(a type:1 container or a type:3 stack), commit, then re-fetch App Templates in Portainer.</div></div>')
+    return PAGE.format(body=body)
 
 
 @app.get("/healthz")
