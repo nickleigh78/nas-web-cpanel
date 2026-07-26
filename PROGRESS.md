@@ -123,3 +123,10 @@ Resume: read top-to-bottom. Autonomous build via scheduled wakeups; commit each 
 - Hostnames = FQDN `<app>.spikechilli.nickleigh.info` (VLAN supersedes .local).
 - Next: v0.4b (auto-refresh + ● pulse + neon-glow + confirm + 🌶️ favicon) → catalog expansion
   → reverse-proxy (E7.3) → GHCR workflow (E7.15).
+
+## 2026-07-26 — flight batch COMPLETE (all 6 slices shipped)
+- v0.4b (9ff8a94): auto-refresh + ● live pulse + neon-glow + confirm() + 🌶️ favicon.
+- Catalog expansion (c6edcd2): +7 apps → 20 templates (Jellyfin, Gitea, Homarr, Syncthing,
+  AdGuard, Paperless-ngx, Immich).
+- Reverse-proxy E7.3 (b3c6fb4): NPM stack + HOSTNAMES.md (FQDN <app>.spikechilli.nickleigh.info).
+- GHCR workflow E7.15: .github/workflows/ghcr.yml publishes the panel image; compose points at it.

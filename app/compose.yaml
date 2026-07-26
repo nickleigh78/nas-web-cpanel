@@ -2,8 +2,10 @@
 # Read-mostly: mounts the docker socket to list/act on containers. LAN-only.
 services:
   panel:
-    build: .
-    # Or, once published: image: ghcr.io/nickleigh78/nas-web-cpanel:latest
+    # Pull the CI-published image (built by .github/workflows/ghcr.yml on push to main):
+    image: ghcr.io/nickleigh78/nas-web-cpanel:latest
+    # Or build locally instead: comment the image line above and uncomment: build: .
+    # build: .
     container_name: app-panel
     restart: unless-stopped
     security_opt:
