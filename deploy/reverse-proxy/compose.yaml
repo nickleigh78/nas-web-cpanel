@@ -1,0 +1,15 @@
+# Nginx Proxy Manager — reverse proxy so every app answers on
+# <app>.spikechilli.nickleigh.info (FQDN) instead of a port. Deploy under
+# /volume1/docker/npm/. LAN-only. Bring-up + host config = Nick (see HOSTNAMES.md).
+services:
+  npm:
+    image: jc21/nginx-proxy-manager:latest
+    container_name: npm
+    restart: unless-stopped
+    ports:
+      - "80:80"      # proxied vhosts (HTTP)
+      - "443:443"    # proxied vhosts (HTTPS)
+      - "8181:81"    # NPM admin UI  → http://<nas-ip>:8181
+    volumes:
+      - ./data:/data
+      - ./letsencrypt:/etc/letsencrypt
