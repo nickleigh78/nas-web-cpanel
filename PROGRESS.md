@@ -113,3 +113,13 @@ Resume: read top-to-bottom. Autonomous build via scheduled wakeups; commit each 
 - **E5 DONE** (2376a67): /search route + header search box; queries Docker Hub (stdlib urllib,
   no new deps), renders image/desc/stars, graceful offline. Panel v0.3.
 - Next: E6 single zero-to-working RUNBOOK (last dev slice).
+
+## 2026-07-26 — flight batch (Nick approved full batch + all 4 cool extras)
+- **E6 RUNBOOK** ✓ (1392968) — docs/RUNBOOK.md nothing→working.
+- **Panel v0.4a** ✓ (38db45f) — stat-tiles row + per-container CPU/mem micro-bars (Docker
+  stats API, parallel stdlib-thread sampling, best-effort/guarded).
+- NOTE: Piwigo now the 5th app in the unified rebuild (Nick 2026-07-26) — restore is
+  Portainer-managed + FQDN + reverse-proxy (see piwigo-local PLAN "RESTORE INTEGRATION").
+- Hostnames = FQDN `<app>.spikechilli.nickleigh.info` (VLAN supersedes .local).
+- Next: v0.4b (auto-refresh + ● pulse + neon-glow + confirm + 🌶️ favicon) → catalog expansion
+  → reverse-proxy (E7.3) → GHCR workflow (E7.15).
