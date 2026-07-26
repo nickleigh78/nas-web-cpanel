@@ -17,6 +17,7 @@ import os
 import secrets as _secrets
 import urllib.parse
 import urllib.request
+from concurrent.futures import ThreadPoolExecutor
 
 from fastapi import Depends, FastAPI, HTTPException, Request, status
 from fastapi.responses import HTMLResponse, RedirectResponse
@@ -82,6 +83,14 @@ PAGE = """<!doctype html><html lang="en"><head><meta charset="utf-8">
  .pill{{font-size:.72rem;font-family:var(--mono);padding:.18rem .55rem;border-radius:999px;
   border:1px solid var(--border)}}
  .pill.up{{color:var(--up)}} .pill.warn{{color:var(--warn)}} .pill.down{{color:var(--down)}}
+ .tiles{{display:grid;grid-template-columns:repeat(4,1fr);gap:.6rem;margin-bottom:1rem}}
+ .tile{{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:.7rem .9rem;text-align:center}}
+ .tn{{font-size:1.4rem;font-weight:700;font-family:var(--mono)}} .tn.up{{color:var(--up)}} .tn.down{{color:var(--down)}}
+ .tl{{font-size:.68rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}}
+ td.m{{white-space:nowrap;font-size:.74rem}} .bar{{display:inline-block;width:48px;height:7px;background:var(--panel2);
+  border-radius:4px;overflow:hidden;vertical-align:middle;margin-right:.3rem}}
+ .bar .fill{{display:block;height:100%;background:var(--accent)}} .bar.mid .fill{{background:var(--warn)}} .bar.hi .fill{{background:var(--down)}}
+ @media(max-width:640px){{.tiles{{grid-template-columns:repeat(2,1fr)}}}}
  table{{width:100%;border-collapse:collapse}}
  td{{padding:.5rem .9rem;border-bottom:1px solid var(--panel2);font-size:.85rem;vertical-align:middle}}
  tr:last-child td{{border-bottom:none}}
@@ -105,6 +114,31 @@ PAGE = """<!doctype html><html lang="en"><head><meta charset="utf-8">
 </div></body></html>"""
 
 
+def _stats_for(c):
+    """(cpu_pct, mem_pct, mem_mb) for a running container, or (None, None, None). Best-effort."""
+    try:
+        s = c.stats(stream=False)
+        cpu, pcpu = s["cpu_stats"], s["precpu_stats"]
+        cd = cpu["cpu_usage"]["total_usage"] - pcpu["cpu_usage"]["total_usage"]
+        sd = cpu.get("system_cpu_usage", 0) - pcpu.get("system_cpu_usage", 0)
+        ncpu = cpu.get("online_cpus") or len(cpu["cpu_usage"].get("percpu_usage") or [1])
+        cpu_pct = (cd / sd) * ncpu * 100.0 if sd > 0 and cd > 0 else 0.0
+        mem = s["memory_stats"]
+        usage = mem.get("usage", 0) - (mem.get("stats", {}) or {}).get("inactive_file", 0)
+        limit = mem.get("limit", 0) or 1
+        return (round(cpu_pct, 1), round(usage / limit * 100.0, 1), round(usage / 1048576))
+    except Exception:  # noqa: BLE001
+        return (None, None, None)
+
+
+def _bar(pct, label):
+    if pct is None:
+        return ""
+    p = max(0.0, min(100.0, pct))
+    cls = "hi" if p >= 85 else ("mid" if p >= 60 else "")
+    return f'<span class="bar {cls}" title="{label} {pct}%"><span class="fill" style="width:{p:.0f}%"></span></span>'
+
+
 def _groups_html() -> str:
     if _client is None:
         return (f'<p class="down">Docker not reachable: {html.escape(_client_error or "unknown")}.'
@@ -112,37 +146,58 @@ def _groups_html() -> str:
     containers = _client.containers.list(all=True)
     if not containers:
         return '<p class="muted">No containers yet. Install apps from Portainer &rarr; App Templates.</p>'
+    running_cs = [c for c in containers if c.status == "running"]
+    stats: dict[str, tuple] = {}
+    try:
+        with ThreadPoolExecutor(max_workers=8) as ex:
+            for c, r in zip(running_cs, ex.map(_stats_for, running_cs)):
+                stats[c.id] = r
+    except Exception:  # noqa: BLE001
+        pass
+    try:
+        n_images = len(_client.images.list())
+    except Exception:  # noqa: BLE001
+        n_images = "?"
+    projects = {c.labels.get("com.docker.compose.project") or "· standalone" for c in containers}
+    tiles = ('<div class="tiles">'
+             f'<div class="tile"><div class="tn">{len(projects)}</div><div class="tl">stacks</div></div>'
+             f'<div class="tile"><div class="tn up">{len(running_cs)}</div><div class="tl">running</div></div>'
+             f'<div class="tile"><div class="tn down">{len(containers) - len(running_cs)}</div><div class="tl">stopped</div></div>'
+             f'<div class="tile"><div class="tn">{n_images}</div><div class="tl">images</div></div></div>')
     groups: dict[str, list] = {}
     for c in containers:
-        proj = c.labels.get("com.docker.compose.project") or "· standalone"
-        groups.setdefault(proj, []).append(c)
-    out: list[str] = []
+        groups.setdefault(c.labels.get("com.docker.compose.project") or "· standalone", []).append(c)
+    out: list[str] = [tiles]
     for proj in sorted(groups):
         members = sorted(groups[proj],
                          key=lambda x: (x.labels.get("com.docker.compose.service") or x.name))
         running = sum(1 for c in members if c.status == "running")
         total = len(members)
         badge = "up" if running == total else ("down" if running == 0 else "warn")
-        out.append(
-            f'<section class="stack"><div class="stack-head">'
-            f'<h2>{html.escape(proj)}</h2>'
-            f'<span class="pill {badge}">{running}/{total} up</span></div><table><tbody>'
-        )
+        out.append(f'<section class="stack"><div class="stack-head">'
+                   f'<h2>{html.escape(proj)}</h2>'
+                   f'<span class="pill {badge}">{running}/{total} up</span></div><table><tbody>')
         for c in members:
             svc = c.labels.get("com.docker.compose.service") or c.name
             image = c.image.tags[0] if c.image.tags else c.image.short_id
             cls = "run" if c.status == "running" else "stop"
+            cpu, mem, memmb = stats.get(c.id, (None, None, None))
+            if c.status == "running":
+                metrics = (f'<td class="m">{_bar(cpu, "CPU")}{cpu if cpu is not None else "&mdash;"}%</td>'
+                           f'<td class="m">{_bar(mem, "MEM")}{(str(memmb) + "M") if memmb is not None else "&mdash;"}</td>')
+            else:
+                metrics = '<td class="m t">&mdash;</td><td class="m t">&mdash;</td>'
             out.append(
                 f'<tr><td class="svc">{html.escape(svc)}</td>'
                 f'<td class="img">{html.escape(image)}</td>'
                 f'<td><span class="state {cls}">{html.escape(c.status)}</span></td>'
+                f'{metrics}'
                 f'<td class="acts">'
                 f'<form method="post" action="/act/{c.id}/start"><button>start</button></form>'
                 f'<form method="post" action="/act/{c.id}/stop"><button>stop</button></form>'
                 f'<form method="post" action="/act/{c.id}/restart"><button>restart</button></form>'
                 f'<a href="/logs/{c.id}"><button type="button">logs</button></a>'
-                f'</td></tr>'
-            )
+                f'</td></tr>')
         out.append('</tbody></table></section>')
     return "".join(out)
 
