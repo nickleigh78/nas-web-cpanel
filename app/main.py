@@ -52,51 +52,97 @@ def require_auth(credentials: HTTPBasicCredentials | None = Depends(_basic)) -> 
             headers={"WWW-Authenticate": "Basic"},
         )
 
-PAGE = """<!doctype html><html><head><meta charset="utf-8">
+PAGE = """<!doctype html><html lang="en"><head><meta charset="utf-8">
 <title>Spike-Chilli App Panel</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
- body{{font-family:system-ui,sans-serif;margin:2rem;background:#0f1115;color:#e6e6e6}}
- h1{{font-size:1.4rem}} a{{color:#7aa2f7}}
- table{{border-collapse:collapse;width:100%;margin-top:1rem}}
- th,td{{text-align:left;padding:.5rem .75rem;border-bottom:1px solid #262a33}}
- .up{{color:#9ece6a}} .down{{color:#f7768e}}
- form{{display:inline}} button{{background:#262a33;color:#e6e6e6;border:1px solid #3b4048;
- border-radius:6px;padding:.25rem .6rem;cursor:pointer;margin-right:.25rem}}
- button:hover{{background:#3b4048}} .muted{{color:#8b93a1;font-size:.85rem}}
-</style></head><body>
-<h1>🌶️ Spike-Chilli App Panel <span class="muted">v0.1 — MVP</span></h1>
+ :root{{--bg:#0b1119;--panel:#111b27;--panel2:#0d151f;--border:#22303f;--text:#e6edf3;
+  --muted:#8b98a8;--accent:#26c6de;--up:#3fb950;--warn:#d29922;--down:#f85149;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}}
+ *{{box-sizing:border-box}} a{{color:var(--accent)}}
+ body{{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);line-height:1.5}}
+ .wrap{{max-width:940px;margin:0 auto;padding:1.5rem 1.1rem}}
+ header.top{{display:flex;align-items:baseline;gap:.6rem;margin-bottom:1.2rem;
+  border-bottom:1px solid var(--border);padding-bottom:.8rem}}
+ header.top h1{{font-size:1.2rem;margin:0}}
+ .v{{color:var(--muted);font-size:.78rem;font-family:var(--mono)}}
+ .stack{{background:var(--panel);border:1px solid var(--border);border-radius:11px;
+  margin:0 0 1rem;overflow:hidden}}
+ .stack-head{{display:flex;align-items:center;justify-content:space-between;gap:.6rem;
+  padding:.7rem .9rem;background:var(--panel2);border-bottom:1px solid var(--border)}}
+ .stack-head h2{{font-size:.92rem;margin:0;font-family:var(--mono);color:var(--accent)}}
+ .pill{{font-size:.72rem;font-family:var(--mono);padding:.18rem .55rem;border-radius:999px;
+  border:1px solid var(--border)}}
+ .pill.up{{color:var(--up)}} .pill.warn{{color:var(--warn)}} .pill.down{{color:var(--down)}}
+ table{{width:100%;border-collapse:collapse}}
+ td{{padding:.5rem .9rem;border-bottom:1px solid var(--panel2);font-size:.85rem;vertical-align:middle}}
+ tr:last-child td{{border-bottom:none}}
+ td.svc{{font-family:var(--mono)}}
+ td.img{{font-family:var(--mono);font-size:.76rem;color:var(--muted)}}
+ .state{{display:inline-flex;align-items:center;gap:.4rem;font-family:var(--mono);font-size:.78rem}}
+ .state::before{{content:"";width:8px;height:8px;border-radius:50%}}
+ .state.run{{color:var(--up)}}.state.run::before{{background:var(--up)}}
+ .state.stop{{color:var(--down)}}.state.stop::before{{background:var(--down)}}
+ td.acts{{white-space:nowrap}} .acts form{{display:inline}}
+ button{{background:#1b2836;color:var(--text);border:1px solid var(--border);border-radius:6px;
+  padding:.24rem .55rem;cursor:pointer;font-size:.76rem;margin-right:.2rem}}
+ button:hover{{background:#243546;border-color:var(--accent)}} .acts a button{{color:var(--accent)}}
+ .muted{{color:var(--muted)}} .down{{color:var(--down)}}
+ footer{{color:var(--muted);font-size:.78rem;margin-top:1.2rem;border-top:1px solid var(--border);
+  padding-top:.8rem}}
+</style></head><body><div class="wrap">
+<header class="top"><h1>🌶️ Spike-Chilli App Panel</h1><span class="v">v0.2 · grouped by stack</span></header>
 {body}
-<p class="muted">Install new apps from the curated catalog in Portainer → App Templates.</p>
-</body></html>"""
+<footer>Grouped by compose stack. Install new apps from Portainer &rarr; App Templates.</footer>
+</div></body></html>"""
 
 
-def _rows() -> str:
+def _groups_html() -> str:
     if _client is None:
-        return f'<p class="down">Docker not reachable: {html.escape(_client_error or "unknown")}.' \
-               '<br>Mount <code>/var/run/docker.sock</code> into this container.</p>'
-    out = ['<table><tr><th>Name</th><th>Image</th><th>State</th><th>Actions</th></tr>']
-    for c in sorted(_client.containers.list(all=True), key=lambda x: x.name):
-        image = c.image.tags[0] if c.image.tags else c.image.short_id
-        cls = "up" if c.status == "running" else "down"
+        return (f'<p class="down">Docker not reachable: {html.escape(_client_error or "unknown")}.'
+                '<br>Mount <code>/var/run/docker.sock</code> into this container.</p>')
+    containers = _client.containers.list(all=True)
+    if not containers:
+        return '<p class="muted">No containers yet. Install apps from Portainer &rarr; App Templates.</p>'
+    groups: dict[str, list] = {}
+    for c in containers:
+        proj = c.labels.get("com.docker.compose.project") or "· standalone"
+        groups.setdefault(proj, []).append(c)
+    out: list[str] = []
+    for proj in sorted(groups):
+        members = sorted(groups[proj],
+                         key=lambda x: (x.labels.get("com.docker.compose.service") or x.name))
+        running = sum(1 for c in members if c.status == "running")
+        total = len(members)
+        badge = "up" if running == total else ("down" if running == 0 else "warn")
         out.append(
-            f'<tr><td>{html.escape(c.name)}</td>'
-            f'<td class="muted">{html.escape(image)}</td>'
-            f'<td class="{cls}">{c.status}</td>'
-            f'<td>'
-            f'<form method="post" action="/act/{c.id}/start"><button>start</button></form>'
-            f'<form method="post" action="/act/{c.id}/stop"><button>stop</button></form>'
-            f'<form method="post" action="/act/{c.id}/restart"><button>restart</button></form>'
-            f'<a href="/logs/{c.id}"><button type="button">logs</button></a>'
-            f'</td></tr>'
+            f'<section class="stack"><div class="stack-head">'
+            f'<h2>{html.escape(proj)}</h2>'
+            f'<span class="pill {badge}">{running}/{total} up</span></div><table><tbody>'
         )
-    out.append("</table>")
+        for c in members:
+            svc = c.labels.get("com.docker.compose.service") or c.name
+            image = c.image.tags[0] if c.image.tags else c.image.short_id
+            cls = "run" if c.status == "running" else "stop"
+            out.append(
+                f'<tr><td class="svc">{html.escape(svc)}</td>'
+                f'<td class="img">{html.escape(image)}</td>'
+                f'<td><span class="state {cls}">{html.escape(c.status)}</span></td>'
+                f'<td class="acts">'
+                f'<form method="post" action="/act/{c.id}/start"><button>start</button></form>'
+                f'<form method="post" action="/act/{c.id}/stop"><button>stop</button></form>'
+                f'<form method="post" action="/act/{c.id}/restart"><button>restart</button></form>'
+                f'<a href="/logs/{c.id}"><button type="button">logs</button></a>'
+                f'</td></tr>'
+            )
+        out.append('</tbody></table></section>')
     return "".join(out)
 
 
 @app.get("/", response_class=HTMLResponse)
 def dashboard(_: Request, _auth: None = Depends(require_auth)) -> str:
-    return PAGE.format(body=_rows())
+    return PAGE.format(body=_groups_html())
 
 
 @app.post("/act/{cid}/{action}")
