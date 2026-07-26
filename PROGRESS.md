@@ -67,7 +67,7 @@ Resume: read top-to-bottom. Autonomous build via scheduled wakeups; commit each 
   auto-enable that was causing 404s (disable it — Portainer serves its own UI on 9443).
   Admin user created. Reachable at https://<nas>:9443.
 - **Repo made PUBLIC** so the App Templates URL works, then **sanitized**: replaced the
-  cPanel account DB names with generic placeholders and squashed history (the `ciqndvoj`
+  cPanel account DB names with generic placeholders and squashed history (the cPanel account
   username is not in any public commit). Nick set the App Templates URL to the raw
   catalog. HALT-1 (first live-box action) is now CLEARED — Portainer is running.
 - **E7 Portainer setup & branding backlog** scoped (PLAN §7b) + added to board #6.

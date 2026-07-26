@@ -8,7 +8,7 @@ services:
     image: mariadb:${MARIADB_IMAGE_TAG:-11.4}
     restart: unless-stopped
     environment:
-      MARIADB_DATABASE: ${PW_DB_NAME:-ciqndvoj_piwi514}   # matches the dump
+      MARIADB_DATABASE: ${PW_DB_NAME:-piwigo}   # real name set in the NAS .env (matches the dump)
       MARIADB_USER: ${PW_DB_USER:-piwigo}
       MARIADB_PASSWORD: ${PW_DB_PASSWORD:?set a strong local value}
       MARIADB_RANDOM_ROOT_PASSWORD: "yes"                 # import as the app user, no root secret

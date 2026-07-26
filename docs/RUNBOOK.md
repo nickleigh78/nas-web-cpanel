@@ -35,7 +35,7 @@ you then **restore the captured data**:
 1. Deploy the stack from App Templates (fill the pre-set env — DB name/port).
 2. Restore per the app's runbook in **`../nickleigh-info-local/stacks/<app>/README.md`**
    (seed files from the Track C capture, import the DB dump, URL-rewrite). Piwigo restore =
-   `../piwigo-local` PLAN "RESTORE INTEGRATION" (17 GB gallery + `ciqndvoj_piwi514` dump).
+   `../piwigo-local` PLAN "RESTORE INTEGRATION" (17 GB gallery + the Piwigo DB dump).
    Hard rules: WordPress → `wp search-replace` (serialized-safe); InvoiceNinja → carry the
    captured `.env` APP_KEY verbatim + `MAIL_MAILER=log`; spiritof → PHP 5.6 vs 7.4 check.
 
