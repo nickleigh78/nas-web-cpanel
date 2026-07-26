@@ -58,6 +58,7 @@ def require_auth(credentials: HTTPBasicCredentials | None = Depends(_basic)) -> 
 
 PAGE = """<!doctype html><html lang="en"><head><meta charset="utf-8">
 <title>Spike-Chilli App Panel</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='88'>🌶️</text></svg>">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
  :root{{--bg:#0b1119;--panel:#111b27;--panel2:#0d151f;--border:#22303f;--text:#e6edf3;
@@ -75,6 +76,14 @@ PAGE = """<!doctype html><html lang="en"><head><meta charset="utf-8">
  .top input{{font:inherit;font-size:.8rem;background:var(--panel2);color:var(--text);
   border:1px solid var(--border);border-radius:7px;padding:.35rem .6rem;min-width:180px}}
  .top input:focus{{outline:2px solid var(--accent);border-color:var(--accent)}}
+ .live{{font-family:var(--mono);font-size:.72rem;color:var(--up);
+  animation:pulse 2s ease-in-out infinite;text-shadow:0 0 6px var(--up)}}
+ @keyframes pulse{{0%,100%{{opacity:1}}50%{{opacity:.3}}}}
+ .stack-head h2{{text-shadow:0 0 7px rgba(38,198,222,.35)}}
+ button:hover{{box-shadow:0 0 8px rgba(38,198,222,.35)}}
+ .tile:hover{{box-shadow:0 0 12px rgba(38,198,222,.14)}}
+ .pill.up{{box-shadow:0 0 8px rgba(63,185,80,.18)}}
+ @media(prefers-reduced-motion:reduce){{.live{{animation:none}}}}
  .stack{{background:var(--panel);border:1px solid var(--border);border-radius:11px;
   margin:0 0 1rem;overflow:hidden}}
  .stack-head{{display:flex;align-items:center;justify-content:space-between;gap:.6rem;
@@ -108,9 +117,10 @@ PAGE = """<!doctype html><html lang="en"><head><meta charset="utf-8">
  footer{{color:var(--muted);font-size:.78rem;margin-top:1.2rem;border-top:1px solid var(--border);
   padding-top:.8rem}}
 </style></head><body><div class="wrap">
-<header class="top"><h1><a href="/" style="color:inherit;text-decoration:none">🌶️ Spike-Chilli App Panel</a></h1><span class="v">v0.3</span><form class="search" method="get" action="/search"><input name="q" placeholder="&#8981; search Docker Hub&#8230;" aria-label="Search Docker Hub"></form></header>
+<header class="top"><h1><a href="/" style="color:inherit;text-decoration:none">🌶️ Spike-Chilli App Panel</a></h1><span class="v">v0.4</span><span class="live">&#9679; live</span><form class="search" method="get" action="/search"><input name="q" placeholder="&#8981; search Docker Hub&#8230;" aria-label="Search Docker Hub"></form></header>
 {body}
 <footer>Grouped by compose stack. Install new apps from Portainer &rarr; App Templates.</footer>
+<script>if(location.pathname==="/"){{setInterval(function(){{if(!document.hidden)location.reload();}},8000);}}</script>
 </div></body></html>"""
 
 
@@ -194,8 +204,8 @@ def _groups_html() -> str:
                 f'{metrics}'
                 f'<td class="acts">'
                 f'<form method="post" action="/act/{c.id}/start"><button>start</button></form>'
-                f'<form method="post" action="/act/{c.id}/stop"><button>stop</button></form>'
-                f'<form method="post" action="/act/{c.id}/restart"><button>restart</button></form>'
+                f'<form method="post" action="/act/{c.id}/stop" onsubmit="return confirm(\'Stop this container?\')"><button>stop</button></form>'
+                f'<form method="post" action="/act/{c.id}/restart" onsubmit="return confirm(\'Restart this container?\')"><button>restart</button></form>'
                 f'<a href="/logs/{c.id}"><button type="button">logs</button></a>'
                 f'</td></tr>')
         out.append('</tbody></table></section>')
