@@ -81,6 +81,17 @@ Resume: read top-to-bottom. Autonomous build via scheduled wakeups; commit each 
   dashboard/act/logs, healthz open. Board updated.
 - Next: E4 install-from-catalog.
 
+## 2026-07-26 — tick: E4 stack grouping done; install-from-catalog dropped
+- **Nick ruled: skip panel-native install-from-catalog** (Portainer's App Templates
+  already covers it; a 2nd installer would duplicate Portainer + break the panel's
+  "delegate heavy lifting" design). Board item → [SKIP].
+- **E4 stack grouping DONE** (020c0c9): panel now groups containers by compose project
+  with a per-stack up/total pill; rebranded Spike-Chilli cyan/slate (v0.2).
+  PAGE.format verified valid.
+- R1: monitor alive, running a verify/resume pass (idle→resume, working as designed);
+  no completion signal yet.
+- Next: E5 search, then E6 single zero-to-working runbook. (E4 essentially complete.)
+
 ## HALT ledger
 - **HALT-1 (pending):** before Nick runs anything on the DS1522+ (deploy Portainer /
   the panel). Nothing on the box yet — repo + docs only. First live action is Nick's,
