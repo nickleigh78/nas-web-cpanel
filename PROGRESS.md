@@ -108,3 +108,8 @@ Resume: read top-to-bottom. Autonomous build via scheduled wakeups; commit each 
 - Repo visibility: **private** by default. For the simplest catalog load, either make
   it public or host `catalog/` on a NAS web path (deploy runbook Option A/B).
 - Prefer the all-in-one **1Panel** instead of Portainer+catalog? Redirect anytime.
+
+## 2026-07-26 — E5 done (Docker Hub search)
+- **E5 DONE** (2376a67): /search route + header search box; queries Docker Hub (stdlib urllib,
+  no new deps), renders image/desc/stars, graceful offline. Panel v0.3.
+- Next: E6 single zero-to-working RUNBOOK (last dev slice).
