@@ -1,0 +1,34 @@
+# Curated catalog: Immich (server + ML + postgres(pgvecto) + redis). One-click via Portainer.
+# Immich changes fast — align image tags to the current upstream release before relying on it.
+services:
+  redis:
+    image: docker.io/redis:6.2-alpine
+    restart: unless-stopped
+  database:
+    image: docker.io/tensorchord/pgvecto-rs:pg14-v0.2.0
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: immich
+      POSTGRES_PASSWORD: ${IMMICH_DB_PASSWORD:-change-me}
+      POSTGRES_DB: immich
+    volumes: [pgdata:/var/lib/postgresql/data]
+  server:
+    image: ghcr.io/immich-app/immich-server:release
+    restart: unless-stopped
+    depends_on: [redis, database]
+    ports: ["${IMMICH_PORT:-2283}:2283"]
+    environment:
+      DB_HOSTNAME: database
+      DB_USERNAME: immich
+      DB_PASSWORD: ${IMMICH_DB_PASSWORD:-change-me}
+      DB_DATABASE_NAME: immich
+      REDIS_HOSTNAME: redis
+    volumes: [upload:/usr/src/app/upload]
+  machine-learning:
+    image: ghcr.io/immich-app/immich-machine-learning:release
+    restart: unless-stopped
+    volumes: [model-cache:/cache]
+volumes:
+  pgdata: {}
+  upload: {}
+  model-cache: {}

@@ -6,17 +6,36 @@
       "title": "WordPress + MariaDB",
       "name": "wordpress",
       "description": "One-click WordPress with its own MariaDB. Set the DB password and port, deploy, browse the mapped port. The Spike-Chilli mirror sites use this same pattern.",
-      "categories": ["CMS", "Spike-Chilli"],
+      "categories": [
+        "CMS",
+        "Spike-Chilli"
+      ],
       "platform": "linux",
       "repository": {
         "url": "https://github.com/nickleigh78/nas-web-cpanel",
         "stackfile": "catalog/stacks/wordpress.yml"
       },
       "env": [
-        {"name": "WP_DB_NAME", "label": "Database name", "default": "wordpress"},
-        {"name": "WP_DB_USER", "label": "Database user", "default": "wordpress"},
-        {"name": "WP_DB_PASSWORD", "label": "Database password", "default": "change-me"},
-        {"name": "WP_PORT", "label": "Host port", "default": "8090"}
+        {
+          "name": "WP_DB_NAME",
+          "label": "Database name",
+          "default": "wordpress"
+        },
+        {
+          "name": "WP_DB_USER",
+          "label": "Database user",
+          "default": "wordpress"
+        },
+        {
+          "name": "WP_DB_PASSWORD",
+          "label": "Database password",
+          "default": "change-me"
+        },
+        {
+          "name": "WP_PORT",
+          "label": "Host port",
+          "default": "8090"
+        }
       ]
     },
     {
@@ -24,15 +43,26 @@
       "title": "Nextcloud + MariaDB",
       "name": "nextcloud",
       "description": "Self-hosted files/calendar/contacts with its own MariaDB.",
-      "categories": ["Files", "Productivity"],
+      "categories": [
+        "Files",
+        "Productivity"
+      ],
       "platform": "linux",
       "repository": {
         "url": "https://github.com/nickleigh78/nas-web-cpanel",
         "stackfile": "catalog/stacks/nextcloud.yml"
       },
       "env": [
-        {"name": "NC_DB_PASSWORD", "label": "Database password", "default": "change-me"},
-        {"name": "NC_PORT", "label": "Host port", "default": "8091"}
+        {
+          "name": "NC_DB_PASSWORD",
+          "label": "Database password",
+          "default": "change-me"
+        },
+        {
+          "name": "NC_PORT",
+          "label": "Host port",
+          "default": "8091"
+        }
       ]
     },
     {
@@ -40,51 +70,96 @@
       "title": "Uptime Kuma",
       "name": "uptime-kuma",
       "description": "Self-hosted uptime/status monitoring.",
-      "categories": ["Monitoring"],
+      "categories": [
+        "Monitoring"
+      ],
       "platform": "linux",
       "image": "louislam/uptime-kuma:1",
       "restart_policy": "unless-stopped",
-      "ports": ["3001:3001/tcp"],
-      "volumes": [{"container": "/app/data"}]
+      "ports": [
+        "3001:3001/tcp"
+      ],
+      "volumes": [
+        {
+          "container": "/app/data"
+        }
+      ]
     },
     {
       "type": 1,
       "title": "Vaultwarden (Bitwarden)",
       "name": "vaultwarden",
       "description": "Lightweight self-hosted password manager, Bitwarden-compatible.",
-      "categories": ["Security"],
+      "categories": [
+        "Security"
+      ],
       "platform": "linux",
       "image": "vaultwarden/server:latest",
       "restart_policy": "unless-stopped",
-      "ports": ["8092:80/tcp"],
-      "volumes": [{"container": "/data"}],
-      "env": [{"name": "SIGNUPS_ALLOWED", "label": "Allow signups", "default": "false"}]
+      "ports": [
+        "8092:80/tcp"
+      ],
+      "volumes": [
+        {
+          "container": "/data"
+        }
+      ],
+      "env": [
+        {
+          "name": "SIGNUPS_ALLOWED",
+          "label": "Allow signups",
+          "default": "false"
+        }
+      ]
     },
     {
       "type": 1,
       "title": "Nginx Proxy Manager",
       "name": "npm",
       "description": "Reverse proxy + Let's Encrypt with a GUI — map <app>.spikechilli.local hostnames.",
-      "categories": ["Networking", "Spike-Chilli"],
+      "categories": [
+        "Networking",
+        "Spike-Chilli"
+      ],
       "platform": "linux",
       "image": "jc21/nginx-proxy-manager:latest",
       "restart_policy": "unless-stopped",
-      "ports": ["8180:81/tcp", "8080:80/tcp", "8443:443/tcp"],
-      "volumes": [{"container": "/data"}, {"container": "/etc/letsencrypt"}]
+      "ports": [
+        "8180:81/tcp",
+        "8080:80/tcp",
+        "8443:443/tcp"
+      ],
+      "volumes": [
+        {
+          "container": "/data"
+        },
+        {
+          "container": "/etc/letsencrypt"
+        }
+      ]
     },
     {
       "type": 1,
       "title": "Dockge",
       "name": "dockge",
       "description": "Reactive compose-stack manager (complements Portainer for editing compose files).",
-      "categories": ["Management"],
+      "categories": [
+        "Management"
+      ],
       "platform": "linux",
       "image": "louislam/dockge:1",
       "restart_policy": "unless-stopped",
-      "ports": ["5001:5001/tcp"],
+      "ports": [
+        "5001:5001/tcp"
+      ],
       "volumes": [
-        {"container": "/app/data"},
-        {"container": "/var/run/docker.sock", "bind": "/var/run/docker.sock"}
+        {
+          "container": "/app/data"
+        },
+        {
+          "container": "/var/run/docker.sock",
+          "bind": "/var/run/docker.sock"
+        }
       ]
     },
     {
@@ -92,37 +167,72 @@
       "title": "IT-Tools",
       "name": "it-tools",
       "description": "A big box of handy developer/sysadmin tools, self-hosted.",
-      "categories": ["Utilities"],
+      "categories": [
+        "Utilities"
+      ],
       "platform": "linux",
       "image": "corentinth/it-tools:latest",
       "restart_policy": "unless-stopped",
-      "ports": ["8093:80/tcp"]
+      "ports": [
+        "8093:80/tcp"
+      ]
     },
     {
       "type": 1,
       "title": "Homepage dashboard",
       "name": "homepage",
       "description": "A clean start-page/dashboard for all your services.",
-      "categories": ["Dashboard", "Spike-Chilli"],
+      "categories": [
+        "Dashboard",
+        "Spike-Chilli"
+      ],
       "platform": "linux",
       "image": "ghcr.io/gethomepage/homepage:latest",
       "restart_policy": "unless-stopped",
-      "ports": ["3000:3000/tcp"],
-      "volumes": [{"container": "/app/config"}]
+      "ports": [
+        "3000:3000/tcp"
+      ],
+      "volumes": [
+        {
+          "container": "/app/config"
+        }
+      ]
     },
     {
       "type": 3,
       "title": "WordPress — nickleigh.info (mirror shell)",
       "name": "wp-main-mirror",
       "description": "Empty WordPress+MariaDB shell pre-set for the nickleigh.info mirror (DB wordpress_main, prefix wpny_, port 8081). After it's up, restore captured data per nickleigh-info-local/stacks/wp-main/README.md (seed wp-content, import the dump, wp search-replace URLs).",
-      "categories": ["Spike-Chilli Mirror", "CMS"],
+      "categories": [
+        "Spike-Chilli Mirror",
+        "CMS"
+      ],
       "platform": "linux",
-      "repository": {"url": "https://github.com/nickleigh78/nas-web-cpanel", "stackfile": "catalog/stacks/wordpress.yml"},
+      "repository": {
+        "url": "https://github.com/nickleigh78/nas-web-cpanel",
+        "stackfile": "catalog/stacks/wordpress.yml"
+      },
       "env": [
-        {"name": "WP_DB_NAME", "label": "DB name", "default": "wordpress_main"},
-        {"name": "WP_DB_USER", "label": "DB user", "default": "wp_main"},
-        {"name": "WP_DB_PASSWORD", "label": "DB password", "default": "change-me"},
-        {"name": "WP_PORT", "label": "Host port", "default": "8081"}
+        {
+          "name": "WP_DB_NAME",
+          "label": "DB name",
+          "default": "wordpress_main"
+        },
+        {
+          "name": "WP_DB_USER",
+          "label": "DB user",
+          "default": "wp_main"
+        },
+        {
+          "name": "WP_DB_PASSWORD",
+          "label": "DB password",
+          "default": "change-me"
+        },
+        {
+          "name": "WP_PORT",
+          "label": "Host port",
+          "default": "8081"
+        }
       ]
     },
     {
@@ -130,14 +240,36 @@
       "title": "WordPress — GBR Expeditions (mirror shell)",
       "name": "wp-gbr-mirror",
       "description": "Empty WordPress+MariaDB shell for the greatbarrierreefexpeditions.com.au mirror (DB wordpress_gbr, prefix wpgb_, port 8082). Restore per nickleigh-info-local/stacks/wp-gbr/README.md.",
-      "categories": ["Spike-Chilli Mirror", "CMS"],
+      "categories": [
+        "Spike-Chilli Mirror",
+        "CMS"
+      ],
       "platform": "linux",
-      "repository": {"url": "https://github.com/nickleigh78/nas-web-cpanel", "stackfile": "catalog/stacks/wordpress.yml"},
+      "repository": {
+        "url": "https://github.com/nickleigh78/nas-web-cpanel",
+        "stackfile": "catalog/stacks/wordpress.yml"
+      },
       "env": [
-        {"name": "WP_DB_NAME", "label": "DB name", "default": "wordpress_gbr"},
-        {"name": "WP_DB_USER", "label": "DB user", "default": "wp_gbr"},
-        {"name": "WP_DB_PASSWORD", "label": "DB password", "default": "change-me"},
-        {"name": "WP_PORT", "label": "Host port", "default": "8082"}
+        {
+          "name": "WP_DB_NAME",
+          "label": "DB name",
+          "default": "wordpress_gbr"
+        },
+        {
+          "name": "WP_DB_USER",
+          "label": "DB user",
+          "default": "wp_gbr"
+        },
+        {
+          "name": "WP_DB_PASSWORD",
+          "label": "DB password",
+          "default": "change-me"
+        },
+        {
+          "name": "WP_PORT",
+          "label": "Host port",
+          "default": "8082"
+        }
       ]
     },
     {
@@ -145,16 +277,46 @@
       "title": "InvoiceNinja v5 (mirror shell)",
       "name": "invoiceninja-mirror",
       "description": "InvoiceNinja v5 + MariaDB shell for the invoices mirror (DB invoiceninja, port 8083). CRITICAL: set IN_APP_KEY to the CAPTURED .env APP_KEY verbatim (decrypts the DB). Mail forced to log. Restore per nickleigh-info-local/stacks/invoiceninja/README.md.",
-      "categories": ["Spike-Chilli Mirror", "Finance"],
+      "categories": [
+        "Spike-Chilli Mirror",
+        "Finance"
+      ],
       "platform": "linux",
-      "repository": {"url": "https://github.com/nickleigh78/nas-web-cpanel", "stackfile": "catalog/stacks/invoiceninja.yml"},
+      "repository": {
+        "url": "https://github.com/nickleigh78/nas-web-cpanel",
+        "stackfile": "catalog/stacks/invoiceninja.yml"
+      },
       "env": [
-        {"name": "IN_APP_KEY", "label": "APP_KEY (captured, verbatim)", "default": ""},
-        {"name": "IN_DB_NAME", "label": "DB name", "default": "invoiceninja"},
-        {"name": "IN_DB_USER", "label": "DB user", "default": "invoiceninja"},
-        {"name": "IN_DB_PASSWORD", "label": "DB password", "default": "change-me"},
-        {"name": "IN_URL", "label": "App URL", "default": "http://invoices.spikechilli.local"},
-        {"name": "IN_PORT", "label": "Host port", "default": "8083"}
+        {
+          "name": "IN_APP_KEY",
+          "label": "APP_KEY (captured, verbatim)",
+          "default": ""
+        },
+        {
+          "name": "IN_DB_NAME",
+          "label": "DB name",
+          "default": "invoiceninja"
+        },
+        {
+          "name": "IN_DB_USER",
+          "label": "DB user",
+          "default": "invoiceninja"
+        },
+        {
+          "name": "IN_DB_PASSWORD",
+          "label": "DB password",
+          "default": "change-me"
+        },
+        {
+          "name": "IN_URL",
+          "label": "App URL",
+          "default": "http://invoices.spikechilli.local"
+        },
+        {
+          "name": "IN_PORT",
+          "label": "Host port",
+          "default": "8083"
+        }
       ]
     },
     {
@@ -162,15 +324,41 @@
       "title": "spiritof.org shop (mirror shell)",
       "name": "spiritof-mirror",
       "description": "PHP+Apache+MariaDB shell for the spiritof.org mirror (2014 site + PHP shop, DB spiritof_shop, port 8084). If the shop uses mysql_*, set SP_PHP_IMAGE=php:5.6-apache. Restore + neuter payment/mail per nickleigh-info-local/stacks/spiritof/README.md.",
-      "categories": ["Spike-Chilli Mirror", "E-commerce"],
+      "categories": [
+        "Spike-Chilli Mirror",
+        "E-commerce"
+      ],
       "platform": "linux",
-      "repository": {"url": "https://github.com/nickleigh78/nas-web-cpanel", "stackfile": "catalog/stacks/spiritof.yml"},
+      "repository": {
+        "url": "https://github.com/nickleigh78/nas-web-cpanel",
+        "stackfile": "catalog/stacks/spiritof.yml"
+      },
       "env": [
-        {"name": "SP_DB_NAME", "label": "DB name", "default": "spiritof_shop"},
-        {"name": "SP_DB_USER", "label": "DB user", "default": "spiritof"},
-        {"name": "SP_DB_PASSWORD", "label": "DB password", "default": "change-me"},
-        {"name": "SP_PHP_IMAGE", "label": "PHP image (5.6 if mysql_*)", "default": "php:7.4-apache"},
-        {"name": "SP_PORT", "label": "Host port", "default": "8084"}
+        {
+          "name": "SP_DB_NAME",
+          "label": "DB name",
+          "default": "spiritof_shop"
+        },
+        {
+          "name": "SP_DB_USER",
+          "label": "DB user",
+          "default": "spiritof"
+        },
+        {
+          "name": "SP_DB_PASSWORD",
+          "label": "DB password",
+          "default": "change-me"
+        },
+        {
+          "name": "SP_PHP_IMAGE",
+          "label": "PHP image (5.6 if mysql_*)",
+          "default": "php:7.4-apache"
+        },
+        {
+          "name": "SP_PORT",
+          "label": "Host port",
+          "default": "8084"
+        }
       ]
     },
     {
@@ -178,14 +366,219 @@
       "title": "Piwigo (mirror shell)",
       "name": "piwigo-mirror",
       "description": "Piwigo + MariaDB shell for the photography gallery. The authoritative Piwigo rebuild is the piwigo-local repo (R1) — align image pin + restore to it (DB piwigo, prefix piwi6w_).",
-      "categories": ["Spike-Chilli Mirror", "Gallery"],
+      "categories": [
+        "Spike-Chilli Mirror",
+        "Gallery"
+      ],
       "platform": "linux",
-      "repository": {"url": "https://github.com/nickleigh78/nas-web-cpanel", "stackfile": "catalog/stacks/piwigo.yml"},
+      "repository": {
+        "url": "https://github.com/nickleigh78/nas-web-cpanel",
+        "stackfile": "catalog/stacks/piwigo.yml"
+      },
       "env": [
-        {"name": "PW_DB_NAME", "label": "DB name", "default": "piwigo"},
-        {"name": "PW_DB_USER", "label": "DB user", "default": "piwigo"},
-        {"name": "PW_DB_PASSWORD", "label": "DB password", "default": "change-me"},
-        {"name": "PW_PORT", "label": "Host port", "default": "8085"}
+        {
+          "name": "PW_DB_NAME",
+          "label": "DB name",
+          "default": "piwigo"
+        },
+        {
+          "name": "PW_DB_USER",
+          "label": "DB user",
+          "default": "piwigo"
+        },
+        {
+          "name": "PW_DB_PASSWORD",
+          "label": "DB password",
+          "default": "change-me"
+        },
+        {
+          "name": "PW_PORT",
+          "label": "Host port",
+          "default": "8085"
+        }
+      ]
+    },
+    {
+      "type": 1,
+      "title": "Jellyfin",
+      "name": "jellyfin",
+      "description": "Free media server (movies, TV, music) with no tracking.",
+      "categories": [
+        "Media"
+      ],
+      "platform": "linux",
+      "image": "jellyfin/jellyfin:latest",
+      "restart_policy": "unless-stopped",
+      "ports": [
+        "8096:8096/tcp"
+      ],
+      "volumes": [
+        {
+          "container": "/config"
+        },
+        {
+          "container": "/cache"
+        },
+        {
+          "container": "/media"
+        }
+      ]
+    },
+    {
+      "type": 1,
+      "title": "Gitea",
+      "name": "gitea",
+      "description": "Lightweight self-hosted Git service (SQLite mode).",
+      "categories": [
+        "Development"
+      ],
+      "platform": "linux",
+      "image": "gitea/gitea:latest",
+      "restart_policy": "unless-stopped",
+      "ports": [
+        "3030:3000/tcp",
+        "2222:22/tcp"
+      ],
+      "volumes": [
+        {
+          "container": "/data"
+        }
+      ],
+      "env": [
+        {
+          "name": "USER_UID",
+          "label": "UID",
+          "default": "1000"
+        },
+        {
+          "name": "USER_GID",
+          "label": "GID",
+          "default": "1000"
+        }
+      ]
+    },
+    {
+      "type": 1,
+      "title": "Homarr dashboard",
+      "name": "homarr",
+      "description": "A sleek dashboard to organise and launch your self-hosted apps.",
+      "categories": [
+        "Dashboard",
+        "Spike-Chilli"
+      ],
+      "platform": "linux",
+      "image": "ghcr.io/ajnart/homarr:latest",
+      "restart_policy": "unless-stopped",
+      "ports": [
+        "7575:7575/tcp"
+      ],
+      "volumes": [
+        {
+          "container": "/app/data/configs"
+        },
+        {
+          "container": "/data"
+        },
+        {
+          "container": "/var/run/docker.sock",
+          "bind": "/var/run/docker.sock"
+        }
+      ]
+    },
+    {
+      "type": 1,
+      "title": "Syncthing",
+      "name": "syncthing",
+      "description": "Continuous peer-to-peer file synchronisation.",
+      "categories": [
+        "Files"
+      ],
+      "platform": "linux",
+      "image": "syncthing/syncthing:latest",
+      "restart_policy": "unless-stopped",
+      "ports": [
+        "8384:8384/tcp",
+        "22000:22000/tcp"
+      ],
+      "volumes": [
+        {
+          "container": "/var/syncthing"
+        }
+      ]
+    },
+    {
+      "type": 1,
+      "title": "AdGuard Home",
+      "name": "adguardhome",
+      "description": "Network-wide ad & tracker blocking DNS.",
+      "categories": [
+        "Networking"
+      ],
+      "platform": "linux",
+      "image": "adguard/adguardhome:latest",
+      "restart_policy": "unless-stopped",
+      "ports": [
+        "3080:3000/tcp"
+      ],
+      "volumes": [
+        {
+          "container": "/opt/adguardhome/work"
+        },
+        {
+          "container": "/opt/adguardhome/conf"
+        }
+      ]
+    },
+    {
+      "type": 3,
+      "title": "Paperless-ngx",
+      "name": "paperless",
+      "description": "Scan, OCR, index and archive documents. Multi-container (web + postgres + redis).",
+      "categories": [
+        "Productivity"
+      ],
+      "platform": "linux",
+      "repository": {
+        "url": "https://github.com/nickleigh78/nas-web-cpanel",
+        "stackfile": "catalog/stacks/paperless.yml"
+      },
+      "env": [
+        {
+          "name": "PAPERLESS_PORT",
+          "label": "Host port",
+          "default": "8010"
+        },
+        {
+          "name": "PAPERLESS_DB_PASSWORD",
+          "label": "DB password",
+          "default": "change-me"
+        }
+      ]
+    },
+    {
+      "type": 3,
+      "title": "Immich",
+      "name": "immich",
+      "description": "Self-hosted photo & video backup (Google Photos alt). Multi-container. ALIGN catalog/stacks/immich.yml to the current upstream immich release before relying on it.",
+      "categories": [
+        "Media"
+      ],
+      "platform": "linux",
+      "repository": {
+        "url": "https://github.com/nickleigh78/nas-web-cpanel",
+        "stackfile": "catalog/stacks/immich.yml"
+      },
+      "env": [
+        {
+          "name": "IMMICH_PORT",
+          "label": "Host port",
+          "default": "2283"
+        },
+        {
+          "name": "IMMICH_DB_PASSWORD",
+          "label": "DB password",
+          "default": "change-me"
+        }
       ]
     }
   ]
