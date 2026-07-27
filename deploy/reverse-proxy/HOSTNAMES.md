@@ -1,5 +1,16 @@
 # Hostnames — reverse proxy (E7.3)  ▶ NICK applies
 
+> **CORRECTION (2026-07-27, from the piwigo-local go-live): NPM does NOT work as the central
+> 80/443 proxy on this DS1522+.** DSM's own nginx already owns ports 80/443 (it serves `hub` via
+> Web Station), and a container can't bind them — so NPM could only run on alternate ports (app
+> URLs carry a port) or awkwardly chain behind DSM. **Use DSM's built-in reverse proxy instead**
+> (Control Panel → Login Portal → Advanced → Reverse Proxy) — it's already the central hostname
+> router here. Pattern per app: (1) add the alias to `asset-register/inventory/dns_aliases.csv`
+> and apply via `opnsense-config playbooks/08_dns_host_overrides.yml`; (2) DSM Reverse Proxy rule
+> `<app>.spikechilli.nickleigh.info` HTTP:80 → the container's **LAN-IP:port** (not localhost —
+> the mirror stacks bind the LAN interface only). Verified working for `piwigo` → `192.168.5.4:8085`.
+> The NPM-based steps below are retained for reference only.
+
 Give every app a name instead of a port, via **Nginx Proxy Manager (NPM)**.
 
 ## The domain — ONE variable
