@@ -8,7 +8,7 @@
 > router here. Pattern per app: (1) add the alias to `asset-register/inventory/dns_aliases.csv`
 > and apply via `opnsense-config playbooks/08_dns_host_overrides.yml`; (2) DSM Reverse Proxy rule
 > `<app>.spikechilli.nickleigh.info` HTTP:80 → the container's **LAN-IP:port** (not localhost —
-> the mirror stacks bind the LAN interface only). Verified working for `piwigo` → `192.168.5.4:8085`.
+> the mirror stacks bind the LAN interface only). Verified working for `piwigo` → `10.0.10.10:8085`.
 > The NPM-based steps below are retained for reference only.
 
 Give every app a name instead of a port, via **Nginx Proxy Manager (NPM)**.
