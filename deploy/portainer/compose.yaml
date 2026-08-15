@@ -2,7 +2,7 @@
 # Deploy under /volume1/docker/portainer/. Bring-up is Nick's action (see README).
 services:
   portainer:
-    image: portainer/portainer-ce:2.21.5   # pin; check for a newer 2.2x before deploy
+    image: portainer/portainer-ce:2.39.6   # LTS (was 2.21.5, updated 2026-08-16); check docs.portainer.io/release-notes before bumping further
     container_name: portainer
     restart: unless-stopped
     security_opt:
