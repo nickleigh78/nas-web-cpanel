@@ -8,8 +8,18 @@ autonomously.
 
 ## Current → target
 
-- **Current:** Portainer CE `2.21.5`, pinned in `deploy/portainer/compose.yaml`, deployed at
-  `/volume1/docker/portainer/` on the DS1522+.
+> **Update history:** `2.21.5` -> `2.39.6` (2026-08-16) -> `2.45.1` (2026-09-21). Keep this line
+> current when you bump — the "Current" value below went stale once already.
+
+- **Current (as of 2026-09-21, pre-update):** Portainer CE `2.39.6`, pinned in
+  `deploy/portainer/compose.yaml`, deployed at `/volume1/docker/portainer/` on the DS1522+.
+- **NOTE — there are TWO live LTS lines.** Checked 2026-09-21: `2.39.8` (2026-09-16) is maintenance
+  on the older LTS line, and `2.45.1` (2026-09-17) is the current LTS. **Both carried the same
+  critical CVE fixes** (CVE-2026-39821 et al. via kubectl 1.37.0 + Alpine/Go bumps), so a security
+  need alone does not force the bigger jump — check which line you are on before assuming "newest =
+  required". `2.45.1` additionally hardens SSRF in Helm chart resolution and Git operations, and its
+  release notes state **no breaking changes / no deprecations**. `2.39.8` additionally fixes an
+  updater health-check bug that could skip rollback on a failed upgrade.
 - **Target:** the current **LTS** release is the safer default for a box this many other stacks
   depend on (STS moves faster, more surface for a regression to hit something live). Check
   [docs.portainer.io/release-notes](https://docs.portainer.io/release-notes) for the exact current
@@ -80,3 +90,28 @@ plain file copy of that directory is a complete backup.
 
 **Performing this runbook = Block 9 territory (Nick's call), listed in the post-renumber sweep's
 final HALT report.**
+
+---
+
+## Run log — 2026-09-21: 2.39.6 -> 2.45.1 LTS
+
+Performed by Nick over WireGuard from the MacBook (away from home); CC verified via the API from
+NLMacMiniM1. Target chosen: **2.45.1 LTS** (over the lower-risk 2.39.8) for the SSRF hardening,
+accepting the 6-minor jump because the release notes declare no breaking changes.
+
+Pre-flight facts confirmed before touching anything:
+- Repo copy and the live `/volume1/docker/portainer/compose.yaml` were **byte-identical**
+  (md5 `4d8cc93010bab0220149195a6f8e3be8`) — no source/live drift to reconcile first.
+- Version was already **pinned** (not `:latest`), so the bump is an explicit, reviewable edit.
+- Data is a **bind mount** (`./data` -> `/volume1/docker/portainer/data`, 1.1 MB, `portainer.db`),
+  so a plain `tar` of the directory is a complete backup.
+
+**Reminder of what this update does NOT do:** it does not touch, restart or affect any other stack
+or container. Portainer is a management UI holding `docker.sock`; the Docker daemon runs the
+containers and keeps running them while Portainer is down. On restart Portainer re-discovers
+running containers from the daemon — it does not need to redeploy anything. The blast radius of a
+bad Portainer update is *Portainer's own DB*, which is why step 1 (backup) is the load-bearing step.
+
+**Post-update smoke tests that matter most** (unchanged from above, but restated because the
+6-minor jump is exactly the case they were written for): the curated catalog (App Templates lists
+the 13 templates) and the custom FastAPI panel (list / logs / start-stop).
