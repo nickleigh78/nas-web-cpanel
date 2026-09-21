@@ -72,7 +72,8 @@ plain file copy of that directory is a complete backup.
    - Smoke-test the curated catalog (App Templates still loads/lists the 13 templates) and the
      custom FastAPI panel (list/logs/start-stop still function) — these are the two things most
      likely to break on an API/schema change (see the version-jump note above).
-5. **Rollback if anything's wrong:** revert the image tag in `compose.yaml` to `2.21.5`,
+5. **Rollback if anything's wrong:** revert the image tag in `compose.yaml` to the **previous**
+   pinned version (see the update-history line at the top — as of 2026-09-21 that is `2.39.6`),
    `docker compose up -d` again. The old version reads the same bind-mounted `data/` directory —
    Portainer's own internal DB migrations are the main rollback risk (a newer version may have
    migrated the DB schema forward in a way the old binary can't read). If `docker compose up -d`
