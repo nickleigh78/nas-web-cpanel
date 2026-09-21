@@ -69,9 +69,13 @@ plain file copy of that directory is a complete backup.
    - Every existing stack still shows as running in the Stacks list (spot-check piwigo, the 4
      hosting mirrors, media-automation) — Portainer re-discovers running containers from the Docker
      daemon on start, it doesn't need to "redeploy" them.
-   - Smoke-test the curated catalog (App Templates still loads/lists the 13 templates) and the
-     custom FastAPI panel (list/logs/start-stop still function) — these are the two things most
-     likely to break on an API/schema change (see the version-jump note above).
+   - Smoke-test the curated catalog (App Templates still loads/lists the templates) — the thing
+     most likely to break on an API/template-schema change (see the version-jump note above).
+   - **The `app/` FastAPI panel is NOT DEPLOYED** (checked 2026-09-21: no `/volume1/docker/nas-web-cpanel`
+     directory, no such container — it is still the "optional thin panel, built incrementally"
+     described in CONTEXT.md). Earlier revisions of this runbook listed it as a smoke test, which
+     sent a reader hunting for a UI that does not exist. Re-add it here **only once it is actually
+     deployed**.
 5. **Rollback if anything's wrong:** revert the image tag in `compose.yaml` to the **previous**
    pinned version (see the update-history line at the top — as of 2026-09-21 that is `2.39.6`),
    `docker compose up -d` again. The old version reads the same bind-mounted `data/` directory —
@@ -113,6 +117,18 @@ containers and keeps running them while Portainer is down. On restart Portainer 
 running containers from the daemon — it does not need to redeploy anything. The blast radius of a
 bad Portainer update is *Portainer's own DB*, which is why step 1 (backup) is the load-bearing step.
 
-**Post-update smoke tests that matter most** (unchanged from above, but restated because the
-6-minor jump is exactly the case they were written for): the curated catalog (App Templates lists
-the 13 templates) and the custom FastAPI panel (list / logs / start-stop).
+**Post-update result (2.45.1 verified):** Portainer reports `2.45.1` and — critically — the
+**InstanceID is unchanged** (`c52baaf4-...`), meaning 2.45.1 migrated the existing DB rather than
+initialising a fresh one. Every other service kept serving throughout (prowlarr/qbittorrent/sonarr/
+radarr/lidarr/piwigo/mealie + both WordPress mirrors via their FQDNs), confirming that a Portainer
+update does not touch other stacks. **Curated catalog: PASSED** — App Templates lists the catalog
+(AdGuard Home, Dockge, Gitea, Homarr, Homepage, Immich, InvoiceNinja v5, IT-Tools, Jellyfin,
+Nextcloud+MariaDB, ...). **FastAPI panel: N/A — not deployed** (see step 4).
+
+**Also confirmed in the Stacks view:** `qbittorrent-nordvpn` shows all 7 containers (gluetun healthy,
+flaresolverr/lidarr/prowlarr/qbittorrent/radarr/sonarr running) — including **prowlarr**, which had
+been recreated that day with `docker run` + replicated compose labels. The labels worked: Portainer
+groups it in the stack rather than orphaning it. To return it to genuine Compose management, a FULL
+stack redeploy is required (that resolves `service:gluetun` correctly because gluetun is in the
+operation set) — but that recreates gluetun and therefore briefly drops the whole stack, so treat it
+as maintenance-window work, not routine.
