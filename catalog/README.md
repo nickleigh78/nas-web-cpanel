@@ -17,6 +17,13 @@ then Portainer's **App Templates** page becomes a one-click installer.
   catalog entries wired to their compose.
 - Grow the common-app set; add a search/discovery step (Docker Hub / curated index).
 
+## Live mirrors vs. catalog shells
+`wp-*-mirror` / `invoiceninja-mirror` / `spiritof-mirror` entries are fresh-install SHELLS (no real data). The
+live InvoiceNinja is the Portainer stack `invoiceninja` (adopted 2026-11-11), deployed from the compose in
+`nickleigh-info-local/stacks/invoiceninja/compose.yaml` (the single source; not copied here). It uses an
+external `env_file:` (APP_KEY + SMTP), which only works because `deploy/portainer/compose.yaml` bind-mounts
+`/volume1/docker/invoiceninja` read-only. Add a similar mount for any future stack with an external env_file.
+
 ## Rules
 - **No secrets in templates** — only images + env placeholders the user fills at
   install time. Passwords default to `change-me` and must be changed.

@@ -276,7 +276,7 @@
       "type": 3,
       "title": "InvoiceNinja v5 (mirror shell)",
       "name": "invoiceninja-mirror",
-      "description": "InvoiceNinja v5 + MariaDB shell for the invoices mirror (DB invoiceninja, port 8083). CRITICAL: set IN_APP_KEY to the CAPTURED .env APP_KEY verbatim (decrypts the DB). Mail forced to log. Restore per nickleigh-info-local/stacks/invoiceninja/README.md.",
+      "description": "InvoiceNinja v5 + MariaDB shell for the invoices mirror (DB invoiceninja, port 8083). CRITICAL: set IN_APP_KEY to the CAPTURED .env APP_KEY verbatim (decrypts the DB). Mail forced to log. Restore per nickleigh-info-local/stacks/invoiceninja/README.md. NOT the live instance: the live mirror is the Portainer stack invoiceninja (adopted 2026-11-11, source of truth nickleigh-info-local/stacks/invoiceninja/compose.yaml; external env_file needs the Portainer bind mount in deploy/portainer/compose.yaml).",
       "categories": [
         "Spike-Chilli Mirror",
         "Finance"
