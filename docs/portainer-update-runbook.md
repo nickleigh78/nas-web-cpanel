@@ -8,7 +8,7 @@ autonomously.
 
 ## Current → target
 
-> **Update history:** `2.21.5` -> `2.39.6` (2026-08-16) -> `2.45.1` (2026-09-21). Keep this line
+> **Update history:** `2.21.5` -> `2.39.6` (2026-08-16) -> `2.45.1` (2026-09-21) -> `2.45.3` (2026-11-11). Keep this line
 > current when you bump — the "Current" value below went stale once already.
 
 - **Current (as of 2026-09-21, pre-update):** Portainer CE `2.39.6`, pinned in
@@ -132,3 +132,25 @@ groups it in the stack rather than orphaning it. To return it to genuine Compose
 stack redeploy is required (that resolves `service:gluetun` correctly because gluetun is in the
 operation set) — but that recreates gluetun and therefore briefly drops the whole stack, so treat it
 as maintenance-window work, not routine.
+
+---
+
+## Run log — 2026-11-11: 2.45.1 -> 2.45.3 LTS
+
+Nick ran steps 1 and 3 in Terminal on the NAS (`sudo`, with the docker binary at `/usr/local/bin/docker`). The Helm
+session on NLMacMiniM1 staged step 2 (`dacaa73`). The NAS SFTP path mapping refused `scp` to `/volume1/...`, so the
+file went over as `ssh … 'cat > /volume1/docker/portainer/compose.yaml'`; repo and live md5 matched (`a12af8d6…`)
+before the pull.
+
+- **Release check:** 2.45.3 (21 Oct) is the current LTS. Its one breaking change: it no longer trusts
+  eMudhra/emSign certificates (CVE-2026-111943). We use no OAuth/LDAP, and we pull from Docker Hub, lscr.io and
+  ghcr.io, so there was no impact. 2.45.2 has no deprecations.
+- **Backup:** `/volume1/docker/portainer-data-backup-20261111-2233.tar.gz` (222K). A second copy, `-2234`, came
+  from a repeat after a mistyped sudo password.
+- **Result:** `/api/status` reports `2.45.3`. The **InstanceID is unchanged** (`c52baaf4-…`), so the DB was migrated
+  and not re-initialised. All FQDNs served afterwards: the five *arr/qbit, portainer, piwigo, invoices, spiritof,
+  mealie, kitchen and hub.
+- **Not caused by the update:** `nickleigh-info` (:8081) and `gbr` (:8082) gave intermittent 503s and no-replies
+  for a few minutes at ~22:36. They were stable at 200 by ~22:40. This overlapped a nickleigh-info-local session
+  starting the T20 InvoiceNinja work, so that session checks it.
+
