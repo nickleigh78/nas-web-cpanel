@@ -13,6 +13,10 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock   # read-write: Portainer must create/manage containers
       - ./data:/data
+      # Portainer runs `compose` inside THIS container, and the compose client reads `env_file:` itself,
+      # so a stack's env_file must exist at the same path in here (proved by the T20 Phase 0 test, 2026-11-11:
+      # "env file ... not found"). Read-only; add one line per stack that needs an external env_file.
+      - /volume1/docker/invoiceninja:/volume1/docker/invoiceninja:ro
     # To load Nick's curated catalog on first start, uncomment and set the URL
     # (see catalog/README.md — needs a reachable URL: public raw or NAS-hosted):
     # command: --templates https://raw.githubusercontent.com/nickleigh78/nas-web-cpanel/main/catalog/templates.json
