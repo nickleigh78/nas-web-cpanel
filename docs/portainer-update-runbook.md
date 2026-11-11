@@ -154,3 +154,7 @@ before the pull.
   for a few minutes at ~22:36. They were stable at 200 by ~22:40. This overlapped a nickleigh-info-local session
   starting the T20 InvoiceNinja work, so that session checks it.
 
+- **Correction (Helm, 22:50 on 11 Nov):** the T20 session had changed nothing, so it did not cause the 22:36 WP
+  blip. Its cause was **WordPress background auto-updates**: the Helm's probes were the first visits in a while and
+  ran the overdue WP-cron. On `wp-main`, Duplicator was rewritten (2,365 files, now 5.1.1), and both sites touched
+  `wp-content/upgrade`. WordPress serves 503 in maintenance mode during an update. Not Portainer.
